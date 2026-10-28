@@ -1,0 +1,35 @@
+{
+  "name": "cube-timer-api",
+  "version": "0.0.1",
+  "description": "Backend for cube timer",
+  "license": "MPL-2.0",
+  "author": "Pip",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx --package typescript tsc --project ./",
+    "cleanBuild": "run-script-os",
+    "cleanBuild:linux:darwin": "rm -rf dist && npx --package typescript tsc --project ./",
+    "cleanBuild:win32": "rmdir /Q /S dist && npx --package typescript tsc --project ./",
+    "start": "node --experimental-sqlite dist/index.js",
+    "dev": "npm run build && npm run start"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.5",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "jiti": "^2.7.0",
+    "nodemon": "^3.1.14",
+    "run-script-os": "^1.1.6",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
+    "typescript-eslint": "^8.71.2"
+  }
+}
