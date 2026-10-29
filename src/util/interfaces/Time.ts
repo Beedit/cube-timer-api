@@ -1,3 +1,6 @@
+/**
+ * Represents a row of the times database
+ */
 export default interface Time {
     id: number
     time: number
