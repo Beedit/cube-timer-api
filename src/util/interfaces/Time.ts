@@ -2,7 +2,7 @@ export default interface Time {
     id: number
     time: number
     dnf: boolean
-    plusTwo: boolean
+    plusTwo: number
     date: number
 }
 
@@ -19,7 +19,7 @@ export const isTime = (check: any): check is Time => {
         && typeof check.id === "number"
         && typeof check.time === "number"
         && typeof check.dnf === "boolean"
-        && typeof check.plusTwo === "boolean"
+        && typeof check.plusTwo === "number"
         && typeof check.date === "number"
     );
 };

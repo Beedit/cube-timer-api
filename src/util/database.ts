@@ -1,8 +1,8 @@
 import { DatabaseSync } from "node:sqlite";
 import { Status } from "./enum/Status.js";
 import type Time from "./interfaces/Time.js";
-import { isTime } from "./interfaces/Time.js";
 import type Result from "./interfaces/Result.js";
+import { isTime } from "./interfaces/Time.js";
 
 /**
  * The database connection. Unopened until init() is called.
@@ -21,7 +21,7 @@ const init = async (): Promise<Status> => {
             db.exec(`CREATE TABLE IF NOT EXISTS times(
                 id INTEGER PRIMARY KEY, 
                 time REAL NOT NULL,
-                plusTwo INTEGER NOT NULL CHECK (plusTwo in (0, 1)),
+                plusTwo INTEGER NOT NULL CHECK (plusTwo >= 0),
                 dnf INTEGER NOT NULL CHECK (dnf in (0, 1)),
                 date INTEGER NOT NULL
                 );
@@ -62,16 +62,15 @@ const getTimes = () => {
 
     timesInitial.forEach((time) => {
         const t = {
-            id: Number(time["id"]),
-            time: Number(time["time"]),
-            dnf: Boolean(time["dnf"]),
-            plusTwo: Boolean(time["plusTwo"]),
-            date: Number(time["date"]),
-        };
+            id: time["id"] as number,
+            time: time["time"] as number,
+            // !! converts to boolean cos "as boolean" isnt allowed
+            dnf: !!time["dnf"],
+            plusTwo: time["plusTwo"] as number,
+            date: time["date"] as number,
+        } as Time;
 
-        if (isTime(t)) {
-            times.push(t as Time);
-        }
+        times.push(t);
     });
 
     return times.sort((a, b) => {
@@ -93,19 +92,14 @@ const getTimeById = (id: number) => {
 
     if (time) {
         const t = {
-            id: Number(time["id"]),
-            time: Number(time["time"]),
-            dnf: Boolean(time["dnf"]),
-            plusTwo: Boolean(time["plusTwo"]),
-            date: Number(time["date"]),
+            id: time["id"] as number,
+            time: time["time"] as number,
+            dnf: !!time["dnf"],
+            plusTwo: time["plusTwo"] as number,
+            date: time["date"] as number,
         };
 
-        if (isTime(t)) {
-            return { status: Status.Success, result: t } as Result;
-        }
-        else {
-            return { status: Status.Fail };
-        }
+        return { status: Status.Success, result: t } as Result;
     }
     else {
         return { status: Status.Fail };
@@ -135,17 +129,17 @@ const setDnf = (id: number, isDnf: boolean) => {
 /**
  * Sets a time's +2 value
  * @param id The id to change
- * @param isPlusTwo What to change its +2 value to
+ * @param plusTwoCount What to change its +2 value to
  * @returns Result holding its status
  */
-const setPlusTwo = (id: number, isPlusTwo: boolean) => {
+const setPlusTwo = (id: number, plusTwoCount: number) => {
     const { status, result: time } = getTimeById(id);
 
     if (status == Status.Success && isTime(time)) {
         db.prepare(`UPDATE times
             SET plusTwo = ?
             WHERE id = ?`,
-        ).run(+isPlusTwo, id);
+        ).run(plusTwoCount, id);
 
         return { status: Status.Success } as Result;
     }
