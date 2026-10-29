@@ -174,4 +174,15 @@ const setNote = (id: number, note: string) => {
     return { status: Status.Fail } as Result;
 };
 
-export { db, init, insertTime, getTimes, setDnf, getTimeById, setPlusTwo, setNote };
+const deleteSolve = (id: number) => {
+    const { changes } = db.prepare("DELETE FROM times WHERE id = ?").run(id);
+
+    if (changes == 1) {
+        return { status: Status.Success } as Result;
+    }
+    else {
+        return { status: Status.Fail } as Result;
+    }
+};
+
+export { db, init, insertTime, getTimes, setDnf, getTimeById, setPlusTwo, setNote, deleteSolve };

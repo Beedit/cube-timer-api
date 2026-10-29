@@ -20,9 +20,4 @@ app.all("/{*splat}", (req, res) => {
 app.listen(port, async () => {
     await database.init();
     console.log(`Listening on port ${port}`);
-
-    console.log(database.getTimes());
 });
-
-// TODO
-// Add in note and scramble
