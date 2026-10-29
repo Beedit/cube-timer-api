@@ -4,6 +4,8 @@ export default interface Time {
     dnf: boolean
     plusTwo: number
     date: number
+    scramble: string
+    note: string
 }
 
 /**
@@ -21,5 +23,7 @@ export const isTime = (check: any): check is Time => {
         && typeof check.dnf === "boolean"
         && typeof check.plusTwo === "number"
         && typeof check.date === "number"
+        && typeof check.scramble === "string"
+        && typeof check.note === "string"
     );
 };

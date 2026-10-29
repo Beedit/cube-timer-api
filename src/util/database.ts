@@ -23,7 +23,9 @@ const init = async (): Promise<Status> => {
                 time REAL NOT NULL,
                 plusTwo INTEGER NOT NULL CHECK (plusTwo >= 0),
                 dnf INTEGER NOT NULL CHECK (dnf in (0, 1)),
-                date INTEGER NOT NULL
+                date INTEGER NOT NULL,
+                scramble TEXT NOT NULL,
+                note TEXT NOT NULL
                 );
             `);
 
@@ -40,13 +42,15 @@ const init = async (): Promise<Status> => {
  * Creates a new time in the database.
  * @param time The time of the solve
  * @param date The date that it happened
+ * @param scramble The scramble as a string
+ * @param note Optional note
  * @returns The ID of the new row
  */
-const insertTime = (time: number, date: number) => {
+const insertTime = (time: number, date: number, scramble: string, note?: string) => {
     const { lastInsertRowid } = db.prepare(`insert into 
-        times (time, plusTwo, dnf, date)
-        values (?, 0, 0, ?)
-    `).run(time, date);
+        times (time, plusTwo, dnf, date, scramble, note)
+        values (?, 0, 0, ?, ?, ?)
+    `).run(time, date, scramble, note ?? "");
 
     return lastInsertRowid;
 };
@@ -68,6 +72,8 @@ const getTimes = () => {
             dnf: !!time["dnf"],
             plusTwo: time["plusTwo"] as number,
             date: time["date"] as number,
+            scramble: time["scramble"] as string,
+            note: time["note"] as string,
         } as Time;
 
         times.push(t);
@@ -97,7 +103,9 @@ const getTimeById = (id: number) => {
             dnf: !!time["dnf"],
             plusTwo: time["plusTwo"] as number,
             date: time["date"] as number,
-        };
+            scramble: time["scramble"] as string,
+            note: time["note"] as string,
+        } as Time;
 
         return { status: Status.Success, result: t } as Result;
     }
@@ -146,4 +154,24 @@ const setPlusTwo = (id: number, plusTwoCount: number) => {
     return { status: Status.Fail } as Result;
 };
 
-export { db, init, insertTime, getTimes, setDnf, getTimeById, setPlusTwo };
+/**
+ * Sets a time's note
+ * @param id The id to change
+ * @param note What to change its note to
+ * @returns Result holding its status
+ */
+const setNote = (id: number, note: string) => {
+    const { status, result: time } = getTimeById(id);
+
+    if (status == Status.Success && isTime(time)) {
+        db.prepare(`UPDATE times
+            SET note = ?
+            WHERE id = ?`,
+        ).run(note, id);
+
+        return { status: Status.Success } as Result;
+    }
+    return { status: Status.Fail } as Result;
+};
+
+export { db, init, insertTime, getTimes, setDnf, getTimeById, setPlusTwo, setNote };
