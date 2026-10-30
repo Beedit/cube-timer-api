@@ -1,7 +1,7 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import logger from "./util/logger.js";
 import Database from "./util/classes/database.js";
-import { createStatusJSON, handleDate, handleDnf, handleId, handleNote, handlePuzzle, handleScramble, handleTime, inputErrorJSON, internalServerErrorJSON } from "./util/utilities.js";
+import { createStatusJSON, handleDate, handleDnf, handleId, handleNote, handlePlusTwo, handlePuzzle, handleScramble, handleTime, inputErrorJSON, internalServerErrorJSON } from "./util/utilities.js";
 import { validationResult } from "express-validator";
 import { Status } from "./util/enum/Status.js";
 
@@ -65,6 +65,24 @@ app.post("/setDnf",
         const result = validationResult(req);
         if (result.isEmpty()) {
             const { status } = db.setDnf(req.body.id, req.body.isDnf);
+            if (status == Status.Success) {
+                return res.status(200).send(createStatusJSON(status));
+            } else {
+                return res.status(500).send(internalServerErrorJSON());
+            }
+        } else {
+            return res.status(400).send(inputErrorJSON(result));
+        }
+    },
+);
+
+app.post("/setPlusTwo",
+    handleId(),
+    handlePlusTwo(),
+    async (req: Request, res: Response) => {
+        const result = validationResult(req);
+        if (result.isEmpty()) {
+            const { status } = db.setPlusTwo(req.body.id, req.body.plusTwoCount);
             if (status == Status.Success) {
                 return res.status(200).send(createStatusJSON(status));
             } else {
