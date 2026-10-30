@@ -3,6 +3,7 @@
  */
 export default interface Time {
     id: number
+    puzzle: string
     time: number
     dnf: boolean
     plusTwo: number
@@ -22,6 +23,7 @@ export const isTime = (check: any): check is Time => {
     return (
         check
         && typeof check.id === "number"
+        && typeof check.puzzle === "string"
         && typeof check.time === "number"
         && typeof check.dnf === "boolean"
         && typeof check.plusTwo === "number"

@@ -3,6 +3,7 @@ import { Status } from "../enum/Status.js";
 import type Time from "../interfaces/Time.js";
 import type Result from "../interfaces/Result.js";
 import { isTime } from "../interfaces/Time.js";
+import logger from "../logger.js";
 
 export default class Database {
     /**
@@ -35,6 +36,7 @@ export default class Database {
                 this.db.exec(`
                     CREATE TABLE IF NOT EXISTS times(
                     id INTEGER PRIMARY KEY, 
+                    puzzle TEXT NOT NULL,
                     time REAL NOT NULL,
                     plusTwo INTEGER NOT NULL CHECK (plusTwo >= 0),
                     dnf INTEGER NOT NULL CHECK (dnf in (0, 1)),
@@ -48,25 +50,25 @@ export default class Database {
             }
             catch (err) {
                 resolve(Status.Fail);
-                throw new Error("", { cause: err });
+                logger.fatal(new Error(`Fatal error in initialisation of database: ${err}`));
             }
         });
     }
 
     /**
      * Creates a new time in the database.
+     * @param puzzle The puzzle type
      * @param time The time of the solve
      * @param date The date that it happened
      * @param scramble The scramble as a string
      * @param note Optional note
      * @returns The number of changes and the id of the last row changed.
      */
-    insertTime(time: number, date: number, scramble: string, note?: string) {
-        console.log(time, date, scramble, note ?? "");
+    insertTime(puzzle: string, time: number, date: number, scramble: string, note?: string) {
         return this.db.prepare(`insert into 
-            times (time, plusTwo, dnf, date, scramble, note)
-            values (?, 0, 0, ?, ?, ?)
-        `).run(time, date, scramble, note ?? "");
+            times (puzzle, time, plusTwo, dnf, date, scramble, note)
+            values (?, ?, 0, 0, ?, ?, ?)
+        `).run(puzzle, time, date, scramble, note ?? "");
     }
 
     /**
@@ -79,8 +81,9 @@ export default class Database {
         const times: Time[] = [];
 
         timesInitial.forEach((time) => {
-            const t = {
+            const t: Time = {
                 id: time["id"] as number,
+                puzzle: time["puzzle"] as string,
                 time: time["time"] as number,
                 // !! converts to boolean cos "as boolean" isnt allowed
                 dnf: !!time["dnf"],
@@ -88,7 +91,7 @@ export default class Database {
                 date: time["date"] as number,
                 scramble: time["scramble"] as string,
                 note: time["note"] as string,
-            } as Time;
+            };
 
             times.push(t);
         });
@@ -112,15 +115,16 @@ export default class Database {
         const time = this.db.prepare("SELECT * FROM times WHERE id = ?").all(id)[0];
 
         if (time) {
-            const t = {
+            const t: Time = {
                 id: time["id"] as number,
+                puzzle: time["puzzle"] as string,
                 time: time["time"] as number,
                 dnf: !!time["dnf"],
                 plusTwo: time["plusTwo"] as number,
                 date: time["date"] as number,
                 scramble: time["scramble"] as string,
                 note: time["note"] as string,
-            } as Time;
+            };
 
             return { status: Status.Success, result: t } as Result;
         }

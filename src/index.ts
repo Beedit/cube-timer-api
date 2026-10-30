@@ -27,10 +27,11 @@ app.post("/addSolve",
     handleDate(),
     handleNote(),
     handleScramble(),
+    handleScramble(),
     async (req: Request, res: Response) => {
         const result = validationResult(req);
         if (result.isEmpty()) {
-            const { changes, lastInsertRowid } = db.insertTime(req.body.time, req.body.date, req.body.scramble, req.body.note);
+            const { changes, lastInsertRowid } = db.insertTime(req.body.scramble, req.body.time, req.body.date, req.body.scramble, req.body.note);
 
             return res.status((changes === 1) ? 200 : 500)
                 .send({ id: lastInsertRowid });
