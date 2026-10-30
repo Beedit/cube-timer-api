@@ -58,7 +58,7 @@ app.post("/addSolve",
     },
 );
 
-app.post("/setDnf",
+app.put("/setDnf",
     handleId(),
     handleDnf(),
     async (req: Request, res: Response) => {
@@ -76,7 +76,7 @@ app.post("/setDnf",
     },
 );
 
-app.post("/setPlusTwo",
+app.put("/setPlusTwo",
     handleId(),
     handlePlusTwo(),
     async (req: Request, res: Response) => {
@@ -94,7 +94,7 @@ app.post("/setPlusTwo",
     },
 );
 
-app.post("/setNote",
+app.put("/setNote",
     handleId(),
     handleNote(),
     async (req: Request, res: Response) => {
