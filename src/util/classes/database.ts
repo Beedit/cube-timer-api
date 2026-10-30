@@ -47,8 +47,7 @@ export default class Database {
             `);
 
                 resolve(Status.Success);
-            }
-            catch (err) {
+            } catch (err) {
                 resolve(Status.Fail);
                 logger.fatal(new Error(`Fatal error in initialisation of database: ${err}`));
             }
@@ -62,13 +61,26 @@ export default class Database {
      * @param date The date that it happened
      * @param scramble The scramble as a string
      * @param note Optional note
-     * @returns The number of changes and the id of the last row changed.
+     * @returns The status of the insertion and if it succeeded, then the id
      */
     insertTime(puzzle: string, time: number, date: number, scramble: string, note?: string) {
-        return this.db.prepare(`insert into 
+        try {
+            const { changes, lastInsertRowid } = this.db.prepare(`insert into 
             times (puzzle, time, plusTwo, dnf, date, scramble, note)
             values (?, ?, 0, 0, ?, ?, ?)
         `).run(puzzle, time, date, scramble, note ?? "");
+
+            if (changes == 1) {
+                return {
+                    status: Status.Success,
+                    result: String(lastInsertRowid),
+                } as Result;
+            } else {
+                return { status: Status.Fail };
+            }
+        } catch {
+            return { status: Status.Fail };
+        }
     }
 
     /**
@@ -99,8 +111,7 @@ export default class Database {
         return times.sort((a, b) => {
             if (a.date > b.date) {
                 return 1;
-            }
-            else {
+            } else {
                 return -1;
             }
         });
@@ -127,8 +138,7 @@ export default class Database {
             };
 
             return { status: Status.Success, result: t } as Result;
-        }
-        else {
+        } else {
             return { status: Status.Fail };
         }
     }
@@ -141,16 +151,16 @@ export default class Database {
      */
     setDnf(id: number, isDnf: boolean) {
         const { status, result: time } = this.getTimeById(id);
+        try {
+            if (status == Status.Success && isTime(time)) {
+                this.db.prepare(`UPDATE times SET dnf = ${isDnf} WHERE id = ${id}`).run();
 
-        if (status == Status.Success && isTime(time)) {
-            this.db.prepare(`UPDATE times
-            SET dnf = ?
-            WHERE id = ?`,
-            ).run(+isDnf, id);
-
-            return { status: Status.Success } as Result;
+                return { status: Status.Success } as Result;
+            }
+            return { status: Status.Fail } as Result;
+        } catch {
+            return { status: Status.Fail } as Result;
         }
-        return { status: Status.Fail } as Result;
     }
 
     /**
@@ -161,16 +171,16 @@ export default class Database {
      */
     setPlusTwo(id: number, plusTwoCount: number) {
         const { status, result: time } = this.getTimeById(id);
+        try {
+            if (status == Status.Success && isTime(time)) {
+                this.db.prepare(`UPDATE times SET plusTwo = ${plusTwoCount} WHERE id = ${id}`).run();
 
-        if (status == Status.Success && isTime(time)) {
-            this.db.prepare(`UPDATE times
-            SET plusTwo = ?
-            WHERE id = ?`,
-            ).run(plusTwoCount, id);
-
-            return { status: Status.Success } as Result;
+                return { status: Status.Success } as Result;
+            }
+            return { status: Status.Fail } as Result;
+        } catch {
+            return { status: Status.Fail } as Result;
         }
-        return { status: Status.Fail } as Result;
     }
 
     /**
@@ -181,16 +191,16 @@ export default class Database {
      */
     setNote(id: number, note: string) {
         const { status, result: time } = this.getTimeById(id);
+        try {
+            if (status == Status.Success && isTime(time)) {
+                this.db.prepare(`UPDATE times SET note = ${note} WHERE id = ${id}`).run();
 
-        if (status == Status.Success && isTime(time)) {
-            this.db.prepare(`UPDATE times
-            SET note = ?
-            WHERE id = ?`,
-            ).run(note, id);
-
-            return { status: Status.Success } as Result;
+                return { status: Status.Success } as Result;
+            }
+            return { status: Status.Fail } as Result;
+        } catch {
+            return { status: Status.Fail } as Result;
         }
-        return { status: Status.Fail } as Result;
     }
 
     deleteSolve(id: number) {
@@ -198,8 +208,7 @@ export default class Database {
 
         if (changes == 1) {
             return { status: Status.Success } as Result;
-        }
-        else {
+        } else {
             return { status: Status.Fail } as Result;
         }
     }

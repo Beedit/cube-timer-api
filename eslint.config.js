@@ -20,6 +20,7 @@ export default defineConfig([
             "@stylistic/quotes": ["warn", "double"],
             "@stylistic/array-bracket-spacing": ["warn", "never", { singleValue: false }],
             "@stylistic/semi-style": ["warn", "last"],
+            "@stylistic/brace-style": ["error", "1tbs"],
             "prefer-const": ["error", { destructuring: "all" }],
         },
         extends: ["js/recommended"],
@@ -36,4 +37,4 @@ export default defineConfig([
         "dist/**",
     ]),
 ]);
-//# sourceMappingURL=eslint.config.js.map
+// # sourceMappingURL=eslint.config.js.map

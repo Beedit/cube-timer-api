@@ -1,19 +1,33 @@
-import express, { type Request, type Response } from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import logger from "./util/logger.js";
 import Database from "./util/classes/database.js";
-import { handleDate, handleNote, handleScramble, handleTime } from "./util/utilities.js";
+import { createStatusJSON, handleDate, handleDnf, handleId, handleNote, handlePuzzle, handleScramble, handleTime, internalServerErrorJSON } from "./util/utilities.js";
 import { validationResult } from "express-validator";
+import { Status } from "./util/enum/Status.js";
+
+const db = new Database("db.sqlite");
 
 // Express app setup
 const port = 5000;
 const app = express();
 app.use(express.json());
-const db = new Database("db.sqlite");
 
 // Log the request, ip and time when a request is made
-app.use(function (req, _res, next) {
+app.use((req: Request, _res: Response, next: NextFunction) => {
     logger.info(`Incoming ${req.method} request from ${req.ip} at ${new Date().toISOString()} on ${req.url}`);
     next();
+});
+
+// Error handling
+app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
+    if (err instanceof SyntaxError && "body" in err) {
+        return res.status(400).send(createStatusJSON(Status.Fail, "SyntaxError: JSON is malformed"));
+    } else if (err) {
+        logger.error(err);
+        return res.status(500).send(internalServerErrorJSON);
+    } else {
+        return next();
+    }
 });
 
 app.get("/getSolves",
@@ -27,17 +41,37 @@ app.post("/addSolve",
     handleDate(),
     handleNote(),
     handleScramble(),
-    handleScramble(),
+    handlePuzzle(),
     async (req: Request, res: Response) => {
         const result = validationResult(req);
         if (result.isEmpty()) {
-            const { changes, lastInsertRowid } = db.insertTime(req.body.scramble, req.body.time, req.body.date, req.body.scramble, req.body.note);
+            const insertionResult = db.insertTime(req.body.scramble, req.body.time, req.body.date, req.body.scramble, req.body.note);
 
-            return res.status((changes === 1) ? 200 : 500)
-                .send({ id: lastInsertRowid });
+            if (insertionResult.status === Status.Success && typeof insertionResult.result === "string") {
+                return res.status(200).send(createStatusJSON(insertionResult.status, insertionResult.result));
+            } else {
+                return res.status(500).send(internalServerErrorJSON);
+            }
+        } else {
+            return res.status(400).send(createStatusJSON(Status.Fail, result.array()));
         }
-        else {
-            return res.status(400).send(result);
+    },
+);
+
+app.post("/setDnf",
+    handleId(),
+    handleDnf(),
+    async (req: Request, res: Response) => {
+        const result = validationResult(req);
+        if (result.isEmpty()) {
+            const { status } = db.setDnf(req.body.id, req.body.isDnf);
+            if (status == Status.Success) {
+                return res.status(200).send(createStatusJSON(status));
+            } else {
+                return res.status(500).send(internalServerErrorJSON);
+            }
+        } else {
+            return res.status(400).send(createStatusJSON(Status.Fail, result.array()));
         }
     },
 );
