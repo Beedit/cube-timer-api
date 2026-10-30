@@ -59,15 +59,14 @@ export default class Database {
      * @param date The date that it happened
      * @param scramble The scramble as a string
      * @param note Optional note
-     * @returns The ID of the new row
+     * @returns The number of changes and the id of the last row changed.
      */
     insertTime(time: number, date: number, scramble: string, note?: string) {
-        const { lastInsertRowid } = this.db.prepare(`insert into 
+        console.log(time, date, scramble, note ?? "");
+        return this.db.prepare(`insert into 
             times (time, plusTwo, dnf, date, scramble, note)
             values (?, 0, 0, ?, ?, ?)
         `).run(time, date, scramble, note ?? "");
-
-        return lastInsertRowid;
     }
 
     /**
