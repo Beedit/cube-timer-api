@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body, Result, type ValidationError } from "express-validator";
 import { Status } from "./enum/Status.js";
 
 /**
@@ -38,6 +38,13 @@ export const handleScramble = () => {
     }).escape().withMessage("Please provide a valid scramble");
 };
 
-export const internalServerErrorJSON = createStatusJSON(Status.Fail, "Internal Server Error");
+/**
+ * @returns Consistent HTTP 500 response.
+ */
+export const internalServerErrorJSON = () => createStatusJSON(Status.Fail, "Internal Server Error");
+/**
+ * @returns Consistent HTTP 400 Input error response.
+ */
+export const inputErrorJSON = (result: Result<ValidationError>) => createStatusJSON(Status.Fail, result.array());
 
 export { createStatusJSON };

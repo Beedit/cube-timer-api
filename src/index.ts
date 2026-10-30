@@ -1,7 +1,7 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import logger from "./util/logger.js";
 import Database from "./util/classes/database.js";
-import { createStatusJSON, handleDate, handleDnf, handleId, handleNote, handlePuzzle, handleScramble, handleTime, internalServerErrorJSON } from "./util/utilities.js";
+import { createStatusJSON, handleDate, handleDnf, handleId, handleNote, handlePuzzle, handleScramble, handleTime, inputErrorJSON, internalServerErrorJSON } from "./util/utilities.js";
 import { validationResult } from "express-validator";
 import { Status } from "./util/enum/Status.js";
 
@@ -24,7 +24,7 @@ app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
         return res.status(400).send(createStatusJSON(Status.Fail, "SyntaxError: JSON is malformed"));
     } else if (err) {
         logger.error(err);
-        return res.status(500).send(internalServerErrorJSON);
+        return res.status(500).send(internalServerErrorJSON());
     } else {
         return next();
     }
@@ -50,10 +50,10 @@ app.post("/addSolve",
             if (insertionResult.status === Status.Success && typeof insertionResult.result === "string") {
                 return res.status(200).send(createStatusJSON(insertionResult.status, insertionResult.result));
             } else {
-                return res.status(500).send(internalServerErrorJSON);
+                return res.status(500).send(internalServerErrorJSON());
             }
         } else {
-            return res.status(400).send(createStatusJSON(Status.Fail, result.array()));
+            return res.status(400).send(inputErrorJSON(result));
         }
     },
 );
@@ -68,10 +68,10 @@ app.post("/setDnf",
             if (status == Status.Success) {
                 return res.status(200).send(createStatusJSON(status));
             } else {
-                return res.status(500).send(internalServerErrorJSON);
+                return res.status(500).send(internalServerErrorJSON());
             }
         } else {
-            return res.status(400).send(createStatusJSON(Status.Fail, result.array()));
+            return res.status(400).send(inputErrorJSON(result));
         }
     },
 );
