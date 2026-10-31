@@ -114,7 +114,7 @@ solveRouter.post("/",
     async (req: Request, res: Response) => {
         const result = validationResult(req);
         if (result.isEmpty()) {
-            const insertionResult = db.insertTime(req.body.scramble, req.body.time, req.body.date, req.body.scramble, req.body.note);
+            const insertionResult = db.insertTime(req.body.puzzle, req.body.time, req.body.date, req.body.scramble, req.body.note);
 
             if (insertionResult.status === Status.Success && typeof insertionResult.result === "string") {
                 return res.status(200).send(createStatusJSON(insertionResult.status, insertionResult.result));
