@@ -134,7 +134,7 @@ solveRouter.get("/all",
         try {
             return res.send(createStatusJSON(Status.Success, db.getTimes()));
         } catch {
-            return res.send(createStatusJSON(Status.Fail));
+            return res.send(internalServerErrorJSON());
         }
     },
 );
