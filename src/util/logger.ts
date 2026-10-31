@@ -10,6 +10,6 @@ export default new Logger({
     },
     name: "Cube Timer Backend",
     pretty: {
-        template: "{{dateIsoStr}} {{logLevelName}}\t{{name}} >> ",
+        template: "{{dateIsoStr}} {{logLevelName}} {{name}}\t>> ",
     },
 });
