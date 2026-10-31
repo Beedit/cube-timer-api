@@ -1,5 +1,5 @@
 import { body, Result, type ValidationError } from "express-validator";
-import { Status } from "./enum/Status.js";
+import { Status } from "../enums/Status.js";
 
 /**
  * Creates a JSON to send to the client based on a status provided

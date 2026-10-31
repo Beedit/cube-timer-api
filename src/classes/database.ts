@@ -1,9 +1,9 @@
 import { DatabaseSync } from "node:sqlite";
-import { Status } from "../enum/Status.js";
+import { Status } from "../enums/Status.js";
 import type Time from "../interfaces/Time.js";
 import type Result from "../interfaces/Result.js";
 import { isTime } from "../interfaces/Time.js";
-import logger from "../logger.js";
+import logger from "../util/logger.js";
 
 export default class Database {
     /**

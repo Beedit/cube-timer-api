@@ -1,9 +1,9 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import logger from "./util/logger.js";
-import Database from "./util/classes/database.js";
+import Database from "./classes/database.js";
 import { createStatusJSON, handleDate, handleDnf, handleId, handleNote, handlePlusTwo, handlePuzzle, handleScramble, handleTime, inputErrorJSON, internalServerErrorJSON } from "./util/utilities.js";
 import { validationResult } from "express-validator";
-import { Status } from "./util/enum/Status.js";
+import { Status } from "./enums/Status.js";
 
 const db = new Database("db.sqlite");
 

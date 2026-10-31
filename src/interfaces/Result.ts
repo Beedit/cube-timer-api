@@ -1,4 +1,4 @@
-import type { Status } from "../enum/Status.js";
+import type { Status } from "../enums/Status.js";
 
 /**
  * Represents a result of a function
