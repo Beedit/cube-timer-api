@@ -1,11 +1,14 @@
 import { DatabaseSync } from "node:sqlite";
 import { Status } from "../enums/Status.js";
-import type Time from "../interfaces/Time.js";
-import type Result from "../interfaces/Result.js";
+import type { Time } from "../interfaces/Time.js";
+import type { Result } from "../interfaces/Result.js";
 import { isTime } from "../interfaces/Time.js";
 import logger from "../util/logger.js";
 
-export default class Database {
+/**
+ * The database class
+ */
+export class Database {
     /**
      * String holding the path of the database file.
      */
@@ -97,7 +100,6 @@ export default class Database {
                 id: time["id"] as number,
                 puzzle: time["puzzle"] as string,
                 time: time["time"] as number,
-                // !! converts to boolean cos "as boolean" isnt allowed
                 dnf: !!time["dnf"],
                 plusTwo: time["plusTwo"] as number,
                 date: time["date"] as number,
@@ -120,7 +122,7 @@ export default class Database {
     /**
      * Gets a specific time from its id
      * @param id The id to use to find the time
-     * @returns Result with time if found in the result key
+     * @returns Result holding it's status and if successful, the time in the "result" key
      */
     getTimeById(id: number) {
         const time = this.db.prepare("SELECT * FROM times WHERE id = ?").all(id)[0];
@@ -139,7 +141,7 @@ export default class Database {
 
             return { status: Status.Success, result: t } as Result;
         } else {
-            return { status: Status.Fail };
+            return { status: Status.NotFound };
         }
     }
 
@@ -147,7 +149,7 @@ export default class Database {
      * Sets a time's DNF value
      * @param id The id to change
      * @param isDnf What to change its DNF value to
-     * @returns Result holding its status
+     * @returns Result holding it's status
      */
     setDnf(id: number, isDnf: boolean) {
         const { status, result: time } = this.getTimeById(id);
@@ -157,7 +159,7 @@ export default class Database {
 
                 return { status: Status.Success } as Result;
             }
-            return { status: Status.Fail } as Result;
+            return { status: Status.NotFound } as Result;
         } catch {
             return { status: Status.Fail } as Result;
         }
@@ -167,7 +169,7 @@ export default class Database {
      * Sets a time's +2 value
      * @param id The id to change
      * @param plusTwoCount What to change its +2 value to
-     * @returns Result holding its status
+     * @returns Result holding it's status
      */
     setPlusTwo(id: number, plusTwoCount: number) {
         const { status, result: time } = this.getTimeById(id);
@@ -177,7 +179,7 @@ export default class Database {
 
                 return { status: Status.Success } as Result;
             }
-            return { status: Status.Fail } as Result;
+            return { status: Status.NotFound } as Result;
         } catch {
             return { status: Status.Fail } as Result;
         }
@@ -187,7 +189,7 @@ export default class Database {
      * Sets a time's note
      * @param id The id to change
      * @param note What to change its note to
-     * @returns Result holding its status
+     * @returns Result holding it's status
      */
     setNote(id: number, note: string) {
         const { status, result: time } = this.getTimeById(id);
@@ -197,7 +199,7 @@ export default class Database {
 
                 return { status: Status.Success } as Result;
             }
-            return { status: Status.Fail } as Result;
+            return { status: Status.NotFound } as Result;
         } catch {
             return { status: Status.Fail } as Result;
         }
@@ -207,7 +209,7 @@ export default class Database {
      * Sets a time's scramble
      * @param id The id to change
      * @param scramble What to change its note to
-     * @returns Result holding its status
+     * @returns Result holding it's status
      */
     setScramble(id: number, scramble: string) {
         const { status, result: time } = this.getTimeById(id);
@@ -217,12 +219,17 @@ export default class Database {
 
                 return { status: Status.Success } as Result;
             }
-            return { status: Status.Fail } as Result;
+            return { status: Status.NotFound } as Result;
         } catch {
             return { status: Status.Fail } as Result;
         }
     }
 
+    /**
+     * Deletes a solve from the database
+     * @param id The id of the solve to delete
+     * @returns Result holding it's status
+     */
     deleteSolve(id: number) {
         const { changes } = this.db.prepare("DELETE FROM times WHERE id = ?").run(id);
 

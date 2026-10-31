@@ -3,7 +3,7 @@ import type { Status } from "../enums/Status.js";
 /**
  * Represents a result of a function
  */
-export default interface Result {
+export interface Result {
     /**
      * The status
      */

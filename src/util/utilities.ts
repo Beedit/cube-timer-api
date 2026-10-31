@@ -8,15 +8,29 @@ import { Status } from "../enums/Status.js";
  * @returns A JSON object with success or failure under the status key
  */
 const createStatusJSON = (status: Status, result?: unknown) => {
-    return (status == Status.Success)
-        ? {
-            success: true,
-            result: result,
-        }
-        : {
-            success: false,
-            errors: result,
-        };
+    let response = {};
+    // (status == Status.Success) ? { success: true, result: result } : 
+    switch (status) {
+        case Status.Success:
+            response = {
+                success: true,
+                result: result,
+            }
+            break;
+        case Status.Fail:
+            response = {
+                success: false,
+                errors: result,
+            };
+            break;
+        case Status.NotFound:
+            response = {
+                success: false,
+                errors: ["404 Not Found"],
+            };
+            break;
+    }
+    return response;
 };
 
 export const handleId = () => body("id").trim().isNumeric().escape().withMessage("Please provide a valid ID");
@@ -46,5 +60,7 @@ export const internalServerErrorJSON = () => createStatusJSON(Status.Fail, "Inte
  * @returns Consistent HTTP 400 Input error response.
  */
 export const inputErrorJSON = (result: Result<ValidationError>) => createStatusJSON(Status.Fail, result.array());
+
+export const notFoundJSON = () => createStatusJSON(Status.NotFound);
 
 export { createStatusJSON };

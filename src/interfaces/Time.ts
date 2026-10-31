@@ -1,7 +1,7 @@
 /**
  * Represents a row of the times database
  */
-export default interface Time {
+export interface Time {
     id: number
     puzzle: string
     time: number
