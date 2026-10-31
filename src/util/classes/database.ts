@@ -203,6 +203,26 @@ export default class Database {
         }
     }
 
+    /**
+     * Sets a time's scramble
+     * @param id The id to change
+     * @param scramble What to change its note to
+     * @returns Result holding its status
+     */
+    setScramble(id: number, scramble: string) {
+        const { status, result: time } = this.getTimeById(id);
+        try {
+            if (status == Status.Success && isTime(time)) {
+                this.db.prepare(`UPDATE times SET scramble = '${scramble}' WHERE id = ${id}`).run();
+
+                return { status: Status.Success } as Result;
+            }
+            return { status: Status.Fail } as Result;
+        } catch {
+            return { status: Status.Fail } as Result;
+        }
+    }
+
     deleteSolve(id: number) {
         const { changes } = this.db.prepare("DELETE FROM times WHERE id = ?").run(id);
 

@@ -112,6 +112,24 @@ app.put("/setNote",
     },
 );
 
+app.put("/setScramble",
+    handleId(),
+    handleScramble(),
+    async (req: Request, res: Response) => {
+        const result = validationResult(req);
+        if (result.isEmpty()) {
+            const { status } = db.setScramble(req.body.id, req.body.scramble);
+            if (status == Status.Success) {
+                return res.status(200).send(createStatusJSON(status));
+            } else {
+                return res.status(500).send(internalServerErrorJSON());
+            }
+        } else {
+            return res.status(400).send(inputErrorJSON(result));
+        }
+    },
+);
+
 app.delete("/deleteSolve",
     handleId(),
     async (req: Request, res: Response) => {
