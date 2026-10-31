@@ -155,12 +155,13 @@ export class Database {
         const { status, result: time } = this.getTimeById(id);
         try {
             if (status == Status.Success && isTime(time)) {
-                this.db.prepare(`UPDATE times SET dnf = ${isDnf} WHERE id = ${id}`).run();
+                this.db.prepare("UPDATE times SET dnf = ? WHERE id = ?").run(+isDnf, id);
 
                 return { status: Status.Success } as Result;
             }
             return { status: Status.NotFound } as Result;
-        } catch {
+        } catch (err) {
+            logger.error(new Error(`${err}`));
             return { status: Status.Fail } as Result;
         }
     }
@@ -175,7 +176,7 @@ export class Database {
         const { status, result: time } = this.getTimeById(id);
         try {
             if (status == Status.Success && isTime(time)) {
-                this.db.prepare(`UPDATE times SET plusTwo = ${plusTwoCount} WHERE id = ${id}`).run();
+                this.db.prepare("UPDATE times SET plusTwo = ? WHERE id = ?").run(plusTwoCount, id);
 
                 return { status: Status.Success } as Result;
             }
@@ -195,7 +196,7 @@ export class Database {
         const { status, result: time } = this.getTimeById(id);
         try {
             if (status == Status.Success && isTime(time)) {
-                this.db.prepare(`UPDATE times SET note = '${note}' WHERE id = ${id}`).run();
+                this.db.prepare("UPDATE times SET note = ? WHERE id = ?").run(note, id);
 
                 return { status: Status.Success } as Result;
             }
@@ -215,7 +216,7 @@ export class Database {
         const { status, result: time } = this.getTimeById(id);
         try {
             if (status == Status.Success && isTime(time)) {
-                this.db.prepare(`UPDATE times SET scramble = '${scramble}' WHERE id = ${id}`).run();
+                this.db.prepare("UPDATE times SET scramble = ? WHERE id = ?").run(scramble, id);
 
                 return { status: Status.Success } as Result;
             }

@@ -4,5 +4,5 @@
 export enum Status {
     Success,
     Fail,
-    NotFound
+    NotFound,
 }

@@ -22,7 +22,7 @@ export default defineConfig([
             "@stylistic/quotes": ["warn", "double"],
             "@stylistic/array-bracket-spacing": ["warn", "never", { singleValue: false }],
             "@stylistic/semi-style": ["warn", "last"],
-            "@stylistic/bracket-style": ["error", "1tbs"],
+            "@stylistic/brace-style": ["error", "1tbs"],
             "prefer-const": ["error", { destructuring: "all" }],
         },
         extends: ["js/recommended"],

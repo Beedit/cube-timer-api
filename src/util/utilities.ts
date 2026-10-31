@@ -9,13 +9,13 @@ import { Status } from "../enums/Status.js";
  */
 const createStatusJSON = (status: Status, result?: unknown) => {
     let response = {};
-    // (status == Status.Success) ? { success: true, result: result } : 
+    // (status == Status.Success) ? { success: true, result: result } :
     switch (status) {
         case Status.Success:
             response = {
                 success: true,
                 result: result,
-            }
+            };
             break;
         case Status.Fail:
             response = {
@@ -33,13 +33,26 @@ const createStatusJSON = (status: Status, result?: unknown) => {
     return response;
 };
 
+/**
+ * Converts a string to a boolean. Values of "true" and "1" are returned as true.
+ * @param str Input string
+ * @returns Boolean
+ */
+const stringToBool = (str: string) => {
+    if (str == "true" || str == "1") {
+        return true;
+    } else {
+        return false;
+    }
+};
+
 export const handleId = () => body("id").trim().isNumeric().escape().withMessage("Please provide a valid ID");
 export const handleTime = () => body("time").trim().isNumeric().escape().withMessage("Please provide a valid time");
 export const handleDate = () => body("date").trim().isNumeric().escape().withMessage("Please provide a date");
-export const handleNote = () => body("note").optional().trim().isString().escape().withMessage("Please provide a valid note");
-export const handlePuzzle = () => body("puzzle").optional().trim().isString().escape().withMessage("Please provide a puzzle type");
-export const handleDnf = () => body("isDnf").trim().isBoolean().escape().withMessage("Please provide a valid dnf status");
-export const handlePlusTwo = () => body("plusTwoCount").optional().trim().isNumeric().escape().withMessage("Please provide a valid +2 count");
+export const handleNote = () => body("note").trim().isString().escape().withMessage("Please provide a valid note");
+export const handlePuzzle = () => body("puzzle").trim().isString().escape().withMessage("Please provide a puzzle type");
+export const handleDnf = () => body("isDnf").trim().isBoolean({ loose: true }).escape().withMessage("Please provide a valid dnf status");
+export const handlePlusTwo = () => body("plusTwoCount").trim().isNumeric().escape().withMessage("Please provide a valid +2 count");
 
 export const handleScramble = () => {
     return body("scramble").trim().isString().custom((input) => {
@@ -63,4 +76,4 @@ export const inputErrorJSON = (result: Result<ValidationError>) => createStatusJ
 
 export const notFoundJSON = () => createStatusJSON(Status.NotFound);
 
-export { createStatusJSON };
+export { createStatusJSON, stringToBool };

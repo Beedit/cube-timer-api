@@ -10,8 +10,6 @@ import { Database } from "./classes/database.js";
  */
 export const db = new Database("db.sqlite");
 
-
-
 /**
  * Express app setup
  */
@@ -41,7 +39,10 @@ app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
     }
 });
 
-app.use("/solve", solveRouter)
+/**
+ * Use all of the solve routes
+ */
+app.use("/solve", solveRouter);
 
 // Unused methods and bad requests.
 app.all("/{*splat}", (req, res) => {

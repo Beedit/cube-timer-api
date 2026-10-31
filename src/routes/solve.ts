@@ -1,8 +1,8 @@
-import express, { type Request, type Response } from 'express';
-import { validationResult } from 'express-validator';
-import { Status } from '../enums/Status.js';
-import { handleNote, handleScramble, createStatusJSON, internalServerErrorJSON, inputErrorJSON, handleId, handleDnf, handlePlusTwo, handleTime, handleDate, handlePuzzle, notFoundJSON } from '../util/utilities.js';
-import { db } from '../index.js';
+import express, { type Request, type Response } from "express";
+import { validationResult } from "express-validator";
+import { Status } from "../enums/Status.js";
+import { handleNote, handleScramble, createStatusJSON, internalServerErrorJSON, inputErrorJSON, handleId, handleDnf, handlePlusTwo, handleTime, handleDate, handlePuzzle, notFoundJSON, stringToBool } from "../util/utilities.js";
+import { db } from "../index.js";
 
 export const solveRouter = express.Router();
 
@@ -12,11 +12,11 @@ solveRouter.put("/dnf",
     async (req: Request, res: Response) => {
         const result = validationResult(req);
         if (result.isEmpty()) {
-            const { status } = db.setDnf(req.body.id, req.body.isDnf);
+            const { status } = db.setDnf(req.body.id, stringToBool(req.body.isDnf));
             if (status == Status.Success) {
                 return res.status(200).send(createStatusJSON(status));
             } else if (status == Status.NotFound) {
-                return res.status(404).send(notFoundJSON())
+                return res.status(404).send(notFoundJSON());
             } else {
                 return res.status(500).send(internalServerErrorJSON());
             }
@@ -36,7 +36,7 @@ solveRouter.put("/plusTwo",
             if (status == Status.Success) {
                 return res.status(200).send(createStatusJSON(status));
             } else if (status == Status.NotFound) {
-                return res.status(404).send(notFoundJSON())
+                return res.status(404).send(notFoundJSON());
             } else {
                 return res.status(500).send(internalServerErrorJSON());
             }
@@ -56,7 +56,7 @@ solveRouter.put("/note",
             if (status == Status.Success) {
                 return res.status(200).send(createStatusJSON(status));
             } else if (status == Status.NotFound) {
-                return res.status(404).send(notFoundJSON())
+                return res.status(404).send(notFoundJSON());
             } else {
                 return res.status(500).send(internalServerErrorJSON());
             }
@@ -76,7 +76,7 @@ solveRouter.put("/scramble",
             if (status == Status.Success) {
                 return res.status(200).send(createStatusJSON(status));
             } else if (status == Status.NotFound) {
-                return res.status(404).send(notFoundJSON())
+                return res.status(404).send(notFoundJSON());
             } else {
                 return res.status(500).send(internalServerErrorJSON());
             }
@@ -95,7 +95,7 @@ solveRouter.delete("/",
             if (status == Status.Success) {
                 return res.status(200).send(createStatusJSON(status));
             } else if (status == Status.NotFound) {
-                return res.status(404).send(notFoundJSON())
+                return res.status(404).send(notFoundJSON());
             } else {
                 return res.status(500).send(internalServerErrorJSON());
             }
@@ -119,7 +119,7 @@ solveRouter.post("/",
             if (insertionResult.status === Status.Success && typeof insertionResult.result === "string") {
                 return res.status(200).send(createStatusJSON(insertionResult.status, insertionResult.result));
             } else if (insertionResult.status == Status.NotFound) {
-                return res.status(404).send(notFoundJSON())
+                return res.status(404).send(notFoundJSON());
             } else {
                 return res.status(500).send(internalServerErrorJSON());
             }
@@ -133,8 +133,8 @@ solveRouter.get("/all",
     (_req: Request, res: Response) => {
         try {
             return res.send(createStatusJSON(Status.Success, db.getTimes()));
-        } catch (error) {
-            return res.send(createStatusJSON(Status.Fail))
+        } catch {
+            return res.send(createStatusJSON(Status.Fail));
         }
     },
 );
