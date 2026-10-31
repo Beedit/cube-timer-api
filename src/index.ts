@@ -112,6 +112,23 @@ app.put("/setNote",
     },
 );
 
+app.delete("/deleteSolve",
+    handleId(),
+    async (req: Request, res: Response) => {
+        const result = validationResult(req);
+        if (result.isEmpty()) {
+            const { status } = db.deleteSolve(req.body.id);
+            if (status == Status.Success) {
+                return res.status(200).send(createStatusJSON(status));
+            } else {
+                return res.status(500).send(internalServerErrorJSON());
+            }
+        } else {
+            return res.status(400).send(inputErrorJSON(result));
+        }
+    },
+);
+
 // Unused methods and bad requests.
 app.all("/{*splat}", (req, res) => {
     res.send(`${req.method} not supported on ${req.path}\n`);

@@ -193,7 +193,7 @@ export default class Database {
         const { status, result: time } = this.getTimeById(id);
         try {
             if (status == Status.Success && isTime(time)) {
-                this.db.prepare(`UPDATE times SET note = ${note} WHERE id = ${id}`).run();
+                this.db.prepare(`UPDATE times SET note = '${note}' WHERE id = ${id}`).run();
 
                 return { status: Status.Success } as Result;
             }
