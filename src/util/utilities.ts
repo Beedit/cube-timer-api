@@ -39,10 +39,12 @@ const createStatusJSON = (status: Status, result?: unknown) => {
  * Closes the database connection and exits the program
  */
 const exit = (code?: string | number) => {
-    logger.info("Closing database connection");
-    db.close();
-    logger.info("Closed successfully. Exiting.");
-    process.exit(code == "SIGINT" ? 130 : 0);
+    if (db.isOpen()) {
+        logger.info("Closing database connection");
+        db.close();
+        logger.info("Closed successfully. Exiting.");
+        process.exit(code == "SIGINT" ? 130 : 0);
+    }
 };
 
 /**

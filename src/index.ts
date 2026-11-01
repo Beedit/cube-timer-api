@@ -44,6 +44,16 @@ app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
  */
 app.use("/solve", solveRouter);
 
+/**
+ * Version info for api
+ */
+app.get("/version", (_req: Request, res: Response) => {
+    res.send(createStatusJSON(Status.Success, {
+        name: process.env["npm_package_name"],
+        version: process.env["npm_package_version"],
+    }));
+});
+
 // Unused methods and bad requests.
 app.all("/{*splat}", (req, res) => {
     res.send(`${req.method} not supported on ${req.path}\n`);

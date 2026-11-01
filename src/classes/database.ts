@@ -19,6 +19,11 @@ export class Database {
     db: DatabaseSync;
 
     /**
+     * The database status
+     * */
+    isOpen = () => this.db.isOpen;
+
+    /**
      * Creates a new Database object
      * @param dbPath The path of the database file
      */
