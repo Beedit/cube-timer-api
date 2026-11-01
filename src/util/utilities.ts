@@ -1,5 +1,7 @@
 import { body, Result, type ValidationError } from "express-validator";
 import { Status } from "../enums/Status.js";
+import logger from "./logger.js";
+import { db } from "../index.js";
 
 /**
  * Creates a JSON to send to the client based on a status provided
@@ -31,6 +33,16 @@ const createStatusJSON = (status: Status, result?: unknown) => {
             break;
     }
     return response;
+};
+
+/**
+ * Closes the database connection and exits the program
+ */
+const exit = (code?: string | number) => {
+    logger.info("Closing database connection");
+    db.close();
+    logger.info("Closed successfully. Exiting.");
+    process.exit(code == "SIGINT" ? 130 : 0);
 };
 
 /**
@@ -76,4 +88,4 @@ export const inputErrorJSON = (result: Result<ValidationError>) => createStatusJ
 
 export const notFoundJSON = () => createStatusJSON(Status.NotFound);
 
-export { createStatusJSON, stringToBool };
+export { createStatusJSON, stringToBool, exit };

@@ -1,6 +1,6 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import logger from "./util/logger.js";
-import { createStatusJSON, internalServerErrorJSON } from "./util/utilities.js";
+import { createStatusJSON, exit, internalServerErrorJSON } from "./util/utilities.js";
 import { Status } from "./enums/Status.js";
 import { solveRouter } from "./routes/solve.js";
 import { Database } from "./classes/database.js";
@@ -49,7 +49,22 @@ app.all("/{*splat}", (req, res) => {
     res.send(`${req.method} not supported on ${req.path}\n`);
 });
 
-app.listen(port, async () => {
-    await db.init();
-    logger.info(`Listening on port ${port}`);
+/**
+ * Handling connections ot the server and exits
+ */
+try {
+    app.listen(port, async () => {
+        await db.init();
+        logger.info(`Listening on port ${port}`);
+    });
+} catch (error) {
+    logger.fatal(new Error(String(error)));
+}
+
+process.on("SIGINT", (code) => {
+    exit(code);
+});
+
+process.on("exit", (code) => {
+    exit(code);
 });

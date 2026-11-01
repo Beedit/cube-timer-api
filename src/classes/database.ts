@@ -46,8 +46,10 @@ export class Database {
                     date INTEGER NOT NULL,
                     scramble TEXT NOT NULL,
                     note TEXT NOT NULL
-                );
-            `);
+                    );
+                `);
+
+                logger.info("Database connected and table exists");
 
                 resolve(Status.Success);
             } catch (err) {
@@ -55,6 +57,10 @@ export class Database {
                 logger.fatal(new Error(`Fatal error in initialisation of database: ${err}`));
             }
         });
+    }
+
+    close() {
+        this.db.close();
     }
 
     /**
@@ -81,7 +87,8 @@ export class Database {
             } else {
                 return { status: Status.Fail };
             }
-        } catch {
+        } catch (err) {
+            logger.error(new Error(err as string));
             return { status: Status.Fail };
         }
     }
@@ -141,7 +148,7 @@ export class Database {
 
             return { status: Status.Success, result: t } as Result;
         } else {
-            return { status: Status.NotFound };
+            return { status: Status.NotFound } as Result;
         }
     }
 
@@ -161,7 +168,7 @@ export class Database {
             }
             return { status: Status.NotFound } as Result;
         } catch (err) {
-            logger.error(new Error(`${err}`));
+            logger.error(new Error(err as string));
             return { status: Status.Fail } as Result;
         }
     }
@@ -181,7 +188,8 @@ export class Database {
                 return { status: Status.Success } as Result;
             }
             return { status: Status.NotFound } as Result;
-        } catch {
+        } catch (err) {
+            logger.error(new Error(err as string));
             return { status: Status.Fail } as Result;
         }
     }
@@ -201,7 +209,8 @@ export class Database {
                 return { status: Status.Success } as Result;
             }
             return { status: Status.NotFound } as Result;
-        } catch {
+        } catch (err) {
+            logger.error(new Error(err as string));
             return { status: Status.Fail } as Result;
         }
     }
@@ -221,7 +230,8 @@ export class Database {
                 return { status: Status.Success } as Result;
             }
             return { status: Status.NotFound } as Result;
-        } catch {
+        } catch (err) {
+            logger.error(new Error(err as string));
             return { status: Status.Fail } as Result;
         }
     }
