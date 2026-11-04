@@ -50,7 +50,8 @@ export class Database {
                     dnf INTEGER NOT NULL CHECK (dnf in (0, 1)),
                     date INTEGER NOT NULL,
                     scramble TEXT NOT NULL,
-                    note TEXT NOT NULL
+                    note TEXT NOT NULL,
+                    category TEXT NOT NULL
                     );
                 `);
 
@@ -77,12 +78,12 @@ export class Database {
      * @param note Optional note
      * @returns The status of the insertion and if it succeeded, then the id
      */
-    insertTime(puzzle: string, time: number, date: number, scramble: string, note?: string) {
+    insertTime(puzzle: string, time: number, date: number, scramble: string, category: string, note?: string) {
         try {
             const { changes, lastInsertRowid } = this.db.prepare(`insert into 
-            times (puzzle, time, plusTwo, dnf, date, scramble, note)
-            values (?, ?, 0, 0, ?, ?, ?)
-        `).run(puzzle, time, date, scramble, note ?? "");
+            times (puzzle, time, plusTwo, dnf, date, scramble, note, category)
+            values (?, ?, 0, 0, ?, ?, ?, ?)
+        `).run(puzzle, time, date, scramble, note ?? "", category);
 
             if (changes == 1) {
                 return {
@@ -117,6 +118,7 @@ export class Database {
                 date: time["date"] as number,
                 scramble: time["scramble"] as string,
                 note: time["note"] as string,
+                category: time["category"] as string,
             };
 
             times.push(t);
@@ -149,6 +151,7 @@ export class Database {
                 date: time["date"] as number,
                 scramble: time["scramble"] as string,
                 note: time["note"] as string,
+                category: time["category"] as string,
             };
 
             return { status: Status.Success, result: t } as Result;

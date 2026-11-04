@@ -10,6 +10,7 @@ export interface Time {
     date: number
     scramble: string
     note: string
+    category: string
 }
 
 /**
@@ -30,5 +31,6 @@ export const isTime = (check: any): check is Time => {
         && typeof check.date === "number"
         && typeof check.scramble === "string"
         && typeof check.note === "string"
+        && typeof check.category === "string"
     );
 };
