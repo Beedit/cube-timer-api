@@ -55,7 +55,14 @@ export class Database {
                     );
                 `);
 
-                logger.info("Database connected and table exists");
+                this.db.exec(`
+                    CREATE TABLE IF NOT EXISTS categories(
+                    category TEXT PRIMARY KEY, 
+                    puzzleType TEXT NOT NULL
+                    );
+                `);
+
+                logger.info("Database connected and tables exists");
 
                 resolve(Status.Success);
             } catch (err) {
@@ -67,6 +74,55 @@ export class Database {
 
     close() {
         this.db.close();
+    }
+
+    /**
+    * Creates a category
+    * @param categoryName The name of the new category
+    * @param puzzleType The type of puzzle
+    * @returns Result with the new category row id
+    */
+    createCategory(categoryName: string, puzzleType: string) {
+        try {
+            const { changes, lastInsertRowid } = this.db.prepare(`insert into 
+            categories (categoryName, puzzleType)
+            values (?, ?)
+        `).run(categoryName, puzzleType);
+
+            if (changes == 1) {
+                return {
+                    status: Status.Success,
+                    result: String(lastInsertRowid),
+                } as Result;
+            } else {
+                return { status: Status.Fail };
+            }
+        } catch (err) {
+            logger.error(new Error(err as string));
+            return { status: Status.Fail };
+        }
+    }
+
+    deleteCategory(id: string) {
+        try {
+            this.db.prepare("BEGIN TRANSACTION").run();
+            const times = this.db.prepare("DELETE FROM times WHERE category = ?").run(id);
+            const categories = this.db.prepare("DELETE FROM categories WHERE categoryName = ?").run(id);
+
+            if (times.changes == 1 && categories.changes == 1) {
+                this.db.prepare("COMMIT").run();
+                return {
+                    status: Status.Success,
+                } as Result;
+            } else {
+                this.db.prepare("ROLLBACK").run();
+                return { status: Status.Fail };
+            }
+        } catch (err) {
+            this.db.prepare("ROLLBACK").run();
+            logger.error(new Error(err as string));
+            return { status: Status.Fail };
+        }
     }
 
     /**
