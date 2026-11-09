@@ -1,4 +1,5 @@
 import express, { type NextFunction, type Request, type Response } from "express";
+import cors from "cors";
 import logger from "./util/logger.js";
 import { createStatusJSON, exit, internalServerErrorJSON } from "./util/utilities.js";
 import { Status } from "./enums/Status.js";
@@ -16,7 +17,7 @@ export const db = new Database("db.sqlite");
 const port = 5000;
 const app = express();
 app.use(express.json());
-
+app.use(cors());
 /**
  * Log the request, ip and time when a request is made
  */
