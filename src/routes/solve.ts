@@ -1,7 +1,7 @@
 import express, { type Request, type Response } from "express";
 import { validationResult } from "express-validator";
 import { Status } from "../enums/Status.js";
-import { handleNote, handleScramble, createStatusJSON, internalServerErrorJSON, inputErrorJSON, handleId, handleDnf, handlePlusTwo, handleTime, handleDate, handlePuzzle, notFoundJSON, stringToBool, handleCategory } from "../util/utilities.js";
+import { handleNote, handleScramble, createStatusJSON, internalServerErrorJSON, inputErrorJSON, handleId, handleDnf, handlePlusTwo, handleTime, handleDate, notFoundJSON, stringToBool, handleCategory } from "../util/utilities.js";
 import { db } from "../index.js";
 
 export const solveRouter = express.Router();
@@ -110,12 +110,11 @@ solveRouter.post("/",
     handleDate(),
     handleNote(true),
     handleScramble(),
-    handlePuzzle(),
     handleCategory(),
     async (req: Request, res: Response) => {
         const result = validationResult(req);
         if (result.isEmpty()) {
-            const insertionResult = db.insertTime(req.body.puzzle, req.body.time, req.body.date, req.body.scramble, req.body.category, req.body.note);
+            const insertionResult = db.insertTime(req.body.time, req.body.date, req.body.scramble, req.body.category, req.body.note);
 
             if (insertionResult.status === Status.Success && typeof insertionResult.result === "string") {
                 return res.status(200).send(createStatusJSON(insertionResult.status, insertionResult.result));

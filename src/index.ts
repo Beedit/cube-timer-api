@@ -5,6 +5,7 @@ import { createStatusJSON, exit, internalServerErrorJSON } from "./util/utilitie
 import { Status } from "./enums/Status.js";
 import { solveRouter } from "./routes/solve.js";
 import { Database } from "./classes/database.js";
+import { categoryRouter } from "./routes/category.js";
 
 /**
  * Default database for the app
@@ -46,6 +47,11 @@ app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
 app.use("/solve", solveRouter);
 
 /**
+ * Use all of the category routes
+ */
+app.use("/category", categoryRouter);
+
+/**
  * Version info for api
  */
 app.get("/version", (_req: Request, res: Response) => {
@@ -65,8 +71,12 @@ app.all("/{*splat}", (req, res) => {
  */
 try {
     app.listen(port, async () => {
-        await db.init();
-        logger.info(`Listening on port ${port}`);
+        const status = await db.init();
+        if (status === Status.Success) {
+            logger.info(`Listening on port ${port}`);
+        } else {
+            throw new Error();
+        }
     });
 } catch (error) {
     logger.fatal(new Error(String(error)));

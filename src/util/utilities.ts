@@ -63,7 +63,6 @@ const stringToBool = (str: string) => {
 export const handleId = () => body("id").isNumeric().trim().escape().withMessage("Please provide a valid ID");
 export const handleTime = () => body("time").isNumeric().trim().escape().withMessage("Please provide a valid time");
 export const handleDate = () => body("date").isNumeric().trim().escape().withMessage("Please provide a date");
-export const handleCategory = () => body("category").isString().trim().escape().withMessage("Please provide a valid category");
 export const handlePuzzle = () => body("puzzle").isString().trim().escape().withMessage("Please provide a puzzle type");
 export const handleDnf = () => body("isDnf").isBoolean({ loose: true }).trim().escape().withMessage("Please provide a valid dnf status");
 export const handlePlusTwo = () => body("plusTwoCount").isNumeric().trim().escape().withMessage("Please provide a valid +2 count");
@@ -86,6 +85,23 @@ export const handleNote = (optional: boolean) => {
         return body("note").isString().trim().escape().withMessage("Please provide a valid note");
     }
 };
+
+export const handleCategory = () => body("category").isString().trim().escape().custom((input) => {
+    const categories = db.getCategories();
+    let x = false;
+    console.log(categories);
+
+    categories.forEach((category) => {
+        if (category.categoryName == input) {
+            x = true;
+            return;
+        }
+    });
+
+    return x;
+}).withMessage("Please provide a valid category");
+
+export const handleCategoryCreation = () => body("category").isString().trim().escape().withMessage("Please provide a valid category");
 
 /**
  * @returns Consistent HTTP 500 response.

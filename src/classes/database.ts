@@ -4,6 +4,7 @@ import type { Time } from "../interfaces/Time.js";
 import type { Result } from "../interfaces/Result.js";
 import { isTime } from "../interfaces/Time.js";
 import logger from "../util/logger.js";
+import type { Category } from "../interfaces/Category.js";
 
 /**
  * The database class
@@ -42,25 +43,30 @@ export class Database {
                 this.db.open();
 
                 this.db.exec(`
-                    CREATE TABLE IF NOT EXISTS times(
-                    id INTEGER PRIMARY KEY, 
-                    puzzle TEXT NOT NULL,
-                    time REAL NOT NULL,
-                    plusTwo INTEGER NOT NULL CHECK (plusTwo >= 0),
-                    dnf INTEGER NOT NULL CHECK (dnf in (0, 1)),
-                    date INTEGER NOT NULL,
-                    scramble TEXT NOT NULL,
-                    note TEXT NOT NULL,
-                    category TEXT NOT NULL
+                    CREATE TABLE IF NOT EXISTS categories(
+                        categoryName TEXT PRIMARY KEY NOT NULL,
+                        puzzleType TEXT NOT NULL
                     );
                 `);
 
                 this.db.exec(`
-                    CREATE TABLE IF NOT EXISTS categories(
-                    category TEXT PRIMARY KEY, 
-                    puzzleType TEXT NOT NULL
+                    CREATE TABLE IF NOT EXISTS times (
+                        id INTEGER PRIMARY KEY,
+                        time REAL NOT NULL,
+                        plusTwo INTEGER NOT NULL CHECK (plusTwo >= 0),
+                        dnf INTEGER NOT NULL CHECK (dnf IN (0, 1)),
+                        date INTEGER NOT NULL,
+                        scramble TEXT NOT NULL,
+                        note TEXT NOT NULL,
+                        category TEXT NOT NULL,
+                        FOREIGN KEY (category) REFERENCES categories (categoryName) ON UPDATE CASCADE ON DELETE CASCADE
                     );
                 `);
+
+                if (this.getCategories().length == 0) {
+                    // Initial category should none exist
+                    this.createCategory("3x3x3", "333");
+                }
 
                 logger.info("Database connected and tables exists");
 
@@ -103,13 +109,18 @@ export class Database {
         }
     }
 
+    /**
+     * Deletes a category
+     * @param id The id of the category to delete
+     * @returns Result
+     */
     deleteCategory(id: string) {
         try {
             this.db.prepare("BEGIN TRANSACTION").run();
-            const times = this.db.prepare("DELETE FROM times WHERE category = ?").run(id);
             const categories = this.db.prepare("DELETE FROM categories WHERE categoryName = ?").run(id);
+            console.log(categories);
 
-            if (times.changes == 1 && categories.changes == 1) {
+            if (categories.changes == 1) {
                 this.db.prepare("COMMIT").run();
                 return {
                     status: Status.Success,
@@ -126,20 +137,39 @@ export class Database {
     }
 
     /**
+     * Gets all the categories
+     */
+    getCategories() {
+        const categoriesInitial = this.db.prepare("SELECT * FROM categories").all();
+
+        const categories: Category[] = [];
+
+        categoriesInitial.forEach((category) => {
+            const c: Category = {
+                categoryName: category["categoryName"] as string,
+                puzzleType: category["puzzleType"] as string,
+            };
+
+            categories.push(c);
+        });
+
+        return categories;
+    }
+
+    /**
      * Creates a new time in the database.
-     * @param puzzle The puzzle type
      * @param time The time of the solve
      * @param date The date that it happened
      * @param scramble The scramble as a string
      * @param note Optional note
      * @returns The status of the insertion and if it succeeded, then the id
      */
-    insertTime(puzzle: string, time: number, date: number, scramble: string, category: string, note?: string) {
+    insertTime(time: number, date: number, scramble: string, category: string, note?: string) {
         try {
             const { changes, lastInsertRowid } = this.db.prepare(`insert into 
-            times (puzzle, time, plusTwo, dnf, date, scramble, note, category)
-            values (?, ?, 0, 0, ?, ?, ?, ?)
-        `).run(puzzle, time, date, scramble, note ?? "", category);
+            times (time, plusTwo, dnf, date, scramble, note, category)
+            values (?, 0, 0, ?, ?, ?, ?)
+        `).run(time, date, scramble, note ?? "", category);
 
             if (changes == 1) {
                 return {
@@ -167,7 +197,6 @@ export class Database {
         timesInitial.forEach((time) => {
             const t: Time = {
                 id: time["id"] as number,
-                puzzle: time["puzzle"] as string,
                 time: time["time"] as number,
                 dnf: !!time["dnf"],
                 plusTwo: time["plusTwo"] as number,
@@ -200,7 +229,6 @@ export class Database {
         if (time) {
             const t: Time = {
                 id: time["id"] as number,
-                puzzle: time["puzzle"] as string,
                 time: time["time"] as number,
                 dnf: !!time["dnf"],
                 plusTwo: time["plusTwo"] as number,
