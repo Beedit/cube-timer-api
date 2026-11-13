@@ -11,7 +11,6 @@ import { db } from "../index.js";
  */
 const createStatusJSON = (status: Status, result?: unknown) => {
     let response = {};
-    // (status == Status.Success) ? { success: true, result: result } :
     switch (status) {
         case Status.Success:
             response = {
