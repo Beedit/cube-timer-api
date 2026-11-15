@@ -1,5 +1,5 @@
 import express, { type Request, type Response } from "express";
-import { createStatusJSON, handleCategory, handleCategoryCreation, handlePuzzle, inputErrorJSON, internalServerErrorJSON, notFoundJSON } from "../util/utilities.js";
+import { createStatusJSON, handleCategory, handleCategoryCreation, handlePuzzle, handleScrambleLength, inputErrorJSON, internalServerErrorJSON, notFoundJSON } from "../util/utilities.js";
 import { Status } from "../enums/Status.js";
 import { db } from "../index.js";
 import { validationResult } from "express-validator";
@@ -19,10 +19,11 @@ categoryRouter.get("/all",
 categoryRouter.post("/",
     handleCategoryCreation(),
     handlePuzzle(),
+    handleScrambleLength(),
     (req: Request, res: Response) => {
         const result = validationResult(req);
         if (result.isEmpty()) {
-            const insertionResult = db.createCategory(req.body.category, req.body.puzzle);
+            const insertionResult = db.createCategory(req.body.category, req.body.puzzle, req.body.scrambleLength);
 
             if (insertionResult.status === Status.Success && typeof insertionResult.result === "string") {
                 return res.status(200).send(createStatusJSON(insertionResult.status, insertionResult.result));

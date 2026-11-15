@@ -45,7 +45,8 @@ export class Database {
                 this.db.exec(`
                     CREATE TABLE IF NOT EXISTS categories(
                         categoryName TEXT PRIMARY KEY NOT NULL,
-                        puzzleType TEXT NOT NULL
+                        puzzleType TEXT NOT NULL,
+                        scrambleLength INT NOT NULL
                     );
                 `);
 
@@ -65,7 +66,7 @@ export class Database {
 
                 if (this.getCategories().length == 0) {
                     // Initial category should none exist
-                    this.createCategory("3x3x3", "333");
+                    this.createCategory("3x3", "333", 0);
                 }
 
                 logger.info("Database connected and tables exists");
@@ -88,12 +89,12 @@ export class Database {
     * @param puzzleType The type of puzzle
     * @returns Result with the new category row id
     */
-    createCategory(categoryName: string, puzzleType: string) {
+    createCategory(categoryName: string, puzzleType: string, scrambleLength: number) {
         try {
             const { changes, lastInsertRowid } = this.db.prepare(`insert into 
-            categories (categoryName, puzzleType)
-            values (?, ?)
-        `).run(categoryName, puzzleType);
+            categories (categoryName, puzzleType, scrambleLength)
+            values (?, ?, ?)
+        `).run(categoryName, puzzleType, scrambleLength);
 
             if (changes == 1) {
                 return {
@@ -148,6 +149,7 @@ export class Database {
             const c: Category = {
                 categoryName: category["categoryName"] as string,
                 puzzleType: category["puzzleType"] as string,
+                scrambleLength: category["scrambleLength"] as number,
             };
 
             categories.push(c);

@@ -10,4 +10,8 @@ export interface Category {
      * The type of puzzle
      */
     puzzleType: string
+    /**
+     * The length of the scramble
+     */
+    scrambleLength: number
 }

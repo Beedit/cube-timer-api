@@ -61,7 +61,9 @@ app.get("/version", (_req: Request, res: Response) => {
     }));
 });
 
-// Unused methods and bad requests.
+/*
+ *Unused methods and bad requests.
+ */
 app.all("/{*splat}", (req, res) => {
     res.send(`${req.method} not supported on ${req.path}\n`);
 });
