@@ -119,7 +119,6 @@ export class Database {
         try {
             this.db.prepare("BEGIN TRANSACTION").run();
             const categories = this.db.prepare("DELETE FROM categories WHERE categoryName = ?").run(id);
-            console.log(categories);
 
             if (categories.changes == 1) {
                 this.db.prepare("COMMIT").run();
@@ -270,14 +269,14 @@ export class Database {
     /**
      * Sets a time's +2 value
      * @param id The id to change
-     * @param plusTwoCount What to change its +2 value to
+     * @param plusTwo What to change its +2 value to
      * @returns Result holding it's status
      */
-    setPlusTwo(id: number, plusTwoCount: number) {
+    setPlusTwo(id: number, plusTwo: number) {
         const { status, result: time } = this.getTimeById(id);
         try {
             if (status == Status.Success && isTime(time)) {
-                this.db.prepare("UPDATE times SET plusTwo = ? WHERE id = ?").run(plusTwoCount, id);
+                this.db.prepare("UPDATE times SET plusTwo = ? WHERE id = ?").run(plusTwo, id);
 
                 return { status: Status.Success } as Result;
             }

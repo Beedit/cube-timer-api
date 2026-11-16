@@ -94,7 +94,6 @@ export const handleNote = (optional: boolean) => {
 export const handleCategory = () => body("category").isString().trim().escape().custom((input) => {
     const categories = db.getCategories();
     let x = false;
-    console.log(categories);
 
     categories.forEach((category) => {
         if (category.categoryName == input) {
