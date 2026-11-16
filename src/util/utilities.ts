@@ -2,7 +2,6 @@ import { body, query, Result, type ValidationError } from "express-validator";
 import { Status } from "../enums/Status.js";
 import logger from "./logger.js";
 import { db } from "../index.js";
-import cstimer from "cstimer_module";
 
 /**
  * Creates a JSON to send to the client based on a status provided
@@ -69,9 +68,7 @@ export const handlePuzzle = () => body("puzzle").isString().trim().escape().with
 export const handlePlusTwo = () => body("plusTwo").isNumeric().trim().escape().withMessage("Please provide a valid +2 count");
 export const handleCategoryCreation = () => body("category").isString().trim().escape().withMessage("Please provide a valid category");
 
-export const handleDnf = () => body("isDnf").isBoolean({ loose: true }).trim().custom((input) => {
-    return (input.isin(cstimer.getScrambleTypes())) ? true : false;
-}).escape().withMessage("Please provide a valid dnf status");
+export const handleDnf = () => body("isDnf").isBoolean({ loose: true }).trim().escape().withMessage("Please provide a valid dnf status");
 
 export const handleScramble = () => {
     return body("scramble").trim().isString().custom((input) => {
