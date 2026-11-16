@@ -1,4 +1,4 @@
-import { body, Result, type ValidationError } from "express-validator";
+import { body, query, Result, type ValidationError } from "express-validator";
 import { Status } from "../enums/Status.js";
 import logger from "./logger.js";
 import { db } from "../index.js";
@@ -61,11 +61,12 @@ const stringToBool = (str: string) => {
 };
 
 export const handleId = () => body("id").isNumeric().trim().escape().withMessage("Please provide a valid ID");
+export const handleGetId = () => query("id").isNumeric().trim().escape().withMessage("Please provide a valid ID");
 export const handleTime = () => body("time").isNumeric().trim().escape().withMessage("Please provide a valid time");
 export const handleDate = () => body("date").isNumeric().trim().escape().withMessage("Please provide a date");
 export const handleScrambleLength = () => body("scrambleLength").isNumeric().trim().escape().withMessage("Please provide a scrambleLength");
 export const handlePuzzle = () => body("puzzle").isString().trim().escape().withMessage("Please provide a puzzle type");
-export const handlePlusTwo = () => body("plusTwoCount").isNumeric().trim().escape().withMessage("Please provide a valid +2 count");
+export const handlePlusTwo = () => body("plusTwo").isNumeric().trim().escape().withMessage("Please provide a valid +2 count");
 export const handleCategoryCreation = () => body("category").isString().trim().escape().withMessage("Please provide a valid category");
 
 export const handleDnf = () => body("isDnf").isBoolean({ loose: true }).trim().custom((input) => {

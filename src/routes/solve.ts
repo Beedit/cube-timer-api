@@ -1,7 +1,7 @@
 import express, { type Request, type Response } from "express";
 import { validationResult } from "express-validator";
 import { Status } from "../enums/Status.js";
-import { handleNote, handleScramble, createStatusJSON, internalServerErrorJSON, inputErrorJSON, handleId, handleDnf, handlePlusTwo, handleTime, handleDate, notFoundJSON, stringToBool, handleCategory } from "../util/utilities.js";
+import { handleNote, handleScramble, createStatusJSON, internalServerErrorJSON, inputErrorJSON, handleId, handleDnf, handlePlusTwo, handleTime, handleDate, notFoundJSON, stringToBool, handleCategory, handleGetId } from "../util/utilities.js";
 import { db } from "../index.js";
 
 export const solveRouter = express.Router();
@@ -32,7 +32,7 @@ solveRouter.put("/plusTwo",
     async (req: Request, res: Response) => {
         const result = validationResult(req);
         if (result.isEmpty()) {
-            const { status } = db.setPlusTwo(req.body.id, req.body.plusTwoCount);
+            const { status } = db.setPlusTwo(req.body.id, req.body.plusTwo);
             if (status == Status.Success) {
                 return res.status(200).send(createStatusJSON(status));
             } else if (status == Status.NotFound) {
@@ -133,6 +133,22 @@ solveRouter.get("/all",
     (_req: Request, res: Response) => {
         try {
             return res.send(createStatusJSON(Status.Success, db.getTimes()));
+        } catch {
+            return res.send(internalServerErrorJSON());
+        }
+    },
+);
+
+solveRouter.get("/",
+    handleGetId(),
+    (req: Request, res: Response) => {
+        try {
+            const time = db.getTimeById(Number(req.query["id"] ?? -1));
+            if (time.status == Status.Success) {
+                return res.send(createStatusJSON(Status.Success, time.result));
+            } else {
+                return res.send(notFoundJSON());
+            }
         } catch {
             return res.send(internalServerErrorJSON());
         }
